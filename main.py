@@ -39,14 +39,14 @@ def main():
                  "continuing. Continue?")
 
     to_print = (f'{tournament_name} Costs:\nYou can pay directly using the provided links, please make sure to include '
-                f'the invoice reference if you are paying through other means.')
+                f'the invoice reference if you are paying through other means.\n')
     for person in people:
         info = get_invoice_info(person.invoice_id)
         person.direct_url = info.direct_url
         person.invoice_ref = info.invoice_ref
         total_cost = to_decimal_cost(person.total_cost)
 
-        to_print += f'\n{person.name} - Owes £{total_cost} - Reference: {person.invoice_ref} - {person.direct_url}'
+        to_print += f'\n{person.name} - Owes £{total_cost} - Reference: {person.invoice_ref} - {person.direct_url}\n'
 
     print(to_print)
 
