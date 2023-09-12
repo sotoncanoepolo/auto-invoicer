@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import os
 import uuid
 from datetime import datetime
@@ -48,17 +49,18 @@ def find_client_id(name: str) -> int:
             return returned_client["ClientID"]
 
 
-def get_invoice_direct_url(invoice_id: int) -> str:
-    payload = {
-        "Header": create_header(),
-        "Body": {
-            "InvoiceID": str(invoice_id),
-        }
-    }
+@dataclass
+class InvoiceInfo:
+    invoice_ref: str
+    direct_url: str
+
+
+def get_invoice_info(invoice_id: int) -> InvoiceInfo:
+    payload = {"Header": create_header(), "Body": {"InvoiceID": str(invoice_id), }}
     r = requests.post(base_api + "/Invoice/Get", json={"payload": payload})
     body = r.json()["Invoice_Get"]["Body"]["InvoiceDetails"]
 
-    return body["DirectPreviewUri"]
+    return InvoiceInfo(body["InvoiceNumber"], body["DirectPreviewUri"])
 
 
 def create_invoice(client_id: int, invoice_name: str, items: list[InvoiceItem]) -> int:

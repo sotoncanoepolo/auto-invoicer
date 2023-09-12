@@ -25,4 +25,5 @@ class Person:
     client_id: int | None = None
     invoice_id: int | None = None
     direct_url: str | None = None
+    invoice_ref: str | None = None
     total_cost: int | None = None

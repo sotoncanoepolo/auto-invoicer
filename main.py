@@ -2,7 +2,7 @@ from argparse import ArgumentParser
 
 from dotenv import load_dotenv
 
-from quickfile import find_client_id, create_invoice, get_invoice_direct_url
+from quickfile import find_client_id, create_invoice, get_invoice_info
 from spreadsheet import Sheet
 from utils import ask_question, to_decimal_cost
 
@@ -35,17 +35,18 @@ def main():
         person.invoice_id = create_invoice(person.client_id, tournament_name, person.costs)
 
     print(f'Created invoices for all {people_count} people.')
-    ask_question(
-        "Please go to the quickfile interface, check all the created invoices and send them by email before "
-        "continuing. Continue?")
+    ask_question("Please go to the quickfile interface, check all the created invoices and send them by email before "
+                 "continuing. Continue?")
 
     to_print = (f'{tournament_name} Costs:\nYou can pay directly using the provided links, please make sure to include '
                 f'the invoice reference if you are paying through other means.')
     for person in people:
-        person.direct_url = get_invoice_direct_url(person.invoice_id)
+        info = get_invoice_info(person.invoice_id)
+        person.direct_url = info.direct_url
+        person.invoice_ref = info.invoice_ref
         total_cost = to_decimal_cost(person.total_cost)
 
-        to_print += f'\n{person.name} - Owes £{total_cost} - {person.direct_url}'
+        to_print += f'\n{person.name} - Owes £{total_cost} - Reference: {person.invoice_ref} - {person.direct_url}'
 
     print(to_print)
 
