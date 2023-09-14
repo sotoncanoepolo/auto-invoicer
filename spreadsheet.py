@@ -1,9 +1,11 @@
 from dataclasses import dataclass
+from itertools import chain
 
 import openpyxl as xl
 from openpyxl.worksheet.worksheet import Worksheet
 
 from core import Person, InvoiceItem
+from utils import ask_question
 
 
 @dataclass
@@ -28,6 +30,24 @@ class Sheet:
                           "Ferry Costs"]
         self.normal_headers: list[Header] = list(
             filter(lambda h: h is not None, map(lambda n: self.get_header(n), normal_headers)))
+        self._check_headers(["Fuel Used", "Approx Miles", "Names"])
+
+    def _check_headers(self, headers_to_ignore: list[str]):
+        used_headers: set[str] = set(chain(map(lambda h: h.name,
+                                               self.normal_headers + [self.name_header, self.refund_header,
+                                                                      self.total_cost_header, self.paid_header,
+                                                                      self.notes_header]), headers_to_ignore))
+        unused_headers = set()
+        for header in self.ws[self.header_row]:
+            if header.value is None:
+                continue
+            if header.value not in used_headers:
+                unused_headers.add(header.value)
+
+        if len(unused_headers) > 0:
+            headers = ", ".join(unused_headers)
+            ask_question(f"Found the following unused headers (ignore if header should not be used): {headers}. "
+                         f"Continue?")
 
     def get_header(self, name: str) -> Header | None:
         for header in self.ws[self.header_row]:
@@ -46,6 +66,8 @@ class Sheet:
         people = []
         for row in range(self.header_row + 1, self.ws.max_row):
             cell = self.ws.cell(row, self.name_header.column)
+            if cell.value is None:
+                continue
             if not isinstance(cell.value, str):
                 break
             if cell.value.strip() == "":
@@ -96,7 +118,7 @@ class Sheet:
         person.total_cost = real_total_cost
         if total_cost != real_total_cost:
             diff = real_total_cost - total_cost
-            round_error = InvoiceItem("Rounding Error", "The total does not match the total of " +
-                                      "adding all items without rounding so this " +
-                                      "is added to fix the rounding error.", diff)
+            round_error = InvoiceItem("Rounding Error",
+                                      "The total does not match the total of " + "adding all items without rounding so this " + "is added to fix the rounding error.",
+                                      diff)
             person.costs.append(round_error)
