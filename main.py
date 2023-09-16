@@ -46,7 +46,7 @@ def main():
         person.invoice_ref = info.invoice_ref
         total_cost = to_decimal_cost(person.total_cost)
 
-        to_print += f'\n{person.name} - Owes £{total_cost} - Reference: {person.invoice_ref} - {person.direct_url}\n'
+        to_print += f'\n{person.name} - Owes £{total_cost} - Reference to use: {person.invoice_ref} - {person.direct_url}\n'
 
     print(to_print)
 
