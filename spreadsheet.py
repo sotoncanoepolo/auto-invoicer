@@ -17,7 +17,10 @@ class Header:
 class Sheet:
     def __init__(self, spreadsheet_path: str, sheet_name: str = 'Main'):
         wb: xl.Workbook = xl.load_workbook(filename=spreadsheet_path, data_only=True)
-        self.ws: Worksheet = wb[sheet_name]
+        try:
+            self.ws: Worksheet = wb[sheet_name]
+        except KeyError:
+            self.ws: Worksheet = wb[input("Could not find sheet called Main what sheet should be used? ")]
 
         # Constants
         self.header_row = 2
@@ -26,11 +29,11 @@ class Sheet:
         self.total_cost_header = self.expect_header("Total Cost")
         self.paid_header = self.expect_header("Paid?")
         self.notes_header = self.expect_header("Notes")
-        normal_headers = ["Deposits", "Entry", "Camping", "Food", "Driver Debt", "Cost towards travel", "Travel Costs",
-                          "Ferry Costs"]
+        normal_headers = ["Deposits", "Entry", "Camping", "Food", "Parking", "Driver Debt", "Cost towards travel",
+                          "Travel Costs", "Ferry Costs"]
         self.normal_headers: list[Header] = list(
             filter(lambda h: h is not None, map(lambda n: self.get_header(n), normal_headers)))
-        self._check_headers(["Fuel Used", "Approx Miles", "Names"])
+        self._check_headers(["Fuel Used", "Approx Miles", "Names", "Miles travelled", "Share"])
 
     def _check_headers(self, headers_to_ignore: list[str]):
         used_headers: set[str] = set(chain(map(lambda h: h.name,
@@ -53,7 +56,7 @@ class Sheet:
         for header in self.ws[self.header_row]:
             if header.value == name:
                 return Header(name, header.column)
-        print(f'Did not find header with name {name}, ignore if the header should not exist.')
+        ask_question(f'Did not find header with name {name}, Ignore? ')
         return None
 
     def expect_header(self, name: str) -> Header:

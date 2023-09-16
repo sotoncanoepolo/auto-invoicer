@@ -67,7 +67,7 @@ def create_invoice(client_id: int, invoice_name: str, items: list[InvoiceItem]) 
     invoice_items = list(map(lambda item: item.to_invoice(), items))
 
     payload = {"Header": create_header(), "Body": {
-        "InvoiceData": {"InvoiceType": "INVOICE", "ClientID": str(client_id), "Currency": "GBP", "TermDays": "14",
+        "InvoiceData": {"InvoiceType": "INVOICE", "ClientID": str(client_id), "Currency": "GBP", "TermDays": "7",
                         "Language": "en", "InvoiceDescription": invoice_name,
                         "InvoiceLines": {"ItemLines": {"ItemLine": invoice_items}},
                         "Scheduling": {"SingleInvoiceData": {"IssueDate": datetime.today().date().isoformat(), }}}}}
