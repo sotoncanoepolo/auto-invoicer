@@ -4,8 +4,8 @@ from itertools import chain
 import openpyxl as xl
 from openpyxl.worksheet.worksheet import Worksheet
 
-from core import Person, InvoiceItem
-from utils import ask_question
+from lib.core import Person, InvoiceItem
+from lib.utils import ask_question
 
 
 @dataclass

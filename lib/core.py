@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from utils import to_decimal_cost
+from lib.utils import to_decimal_cost
 
 
 class InvoiceItem:
@@ -27,3 +27,4 @@ class Person:
     direct_url: str | None = None
     invoice_ref: str | None = None
     total_cost: int | None = None
+    outstanding_debts: int | None = None
