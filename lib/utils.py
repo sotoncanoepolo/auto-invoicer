@@ -17,7 +17,7 @@ def ask_question(question: str, quit_program: bool = True) -> bool:
 
 
 def to_decimal_cost(cost: int) -> str:
-    pounds = cost // 100
+    pounds = (abs(cost) // 100) * (1 if cost > 0 else -1)
     pence = abs(cost) % 100
     return f'{pounds}.{pence:02}'
 
