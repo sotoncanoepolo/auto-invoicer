@@ -115,7 +115,7 @@ def get_client_balance(client_id: int) -> int:
     if body is None:
         return 0
 
-    amount = body["Balance"][0]["Amount"]
+    amount = float(body["Balance"][0]["Amount"])
 
     return int(round(amount * 100))
 

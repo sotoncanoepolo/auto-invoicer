@@ -46,8 +46,10 @@ def main():
     ask_question("Please go to the quickfile interface, check all the created invoices and send them by email before "
                  "continuing. Continue?")
 
-    to_print = (f'{tournament_name} Costs:\nYou can pay directly using the provided links, please make sure to include '
-                f'the invoice reference if you are paying through other means.\n')
+    to_print = (f'\n{tournament_name} Costs:\nYou can pay directly using the provided links, please make sure to '
+                f'include the invoice reference if you are paying through other means.\n')
+    cost_table = ''
+
     for person in people:
         info = get_invoice_info(person.invoice_id)
         person.direct_url = info.direct_url
@@ -55,17 +57,19 @@ def main():
         total_cost = to_decimal_cost(person.total_cost)
         link = shorten_link(person.direct_url)
 
-        to_print += f'\n{person.name} - Owes £{total_cost} - Reference to use: {person.invoice_ref} - {link}\n'
+        cost_table += f'\n{person.name} - Owes £{total_cost} - Reference to use: {person.invoice_ref} - {link}\n'
 
-        if check_debt and (balance := get_client_balance(person.client_id) is not None):
-            person.outstanding_debts = balance
-            to_print += f'Also Owes an extra £{to_decimal_cost(balance)}\n'
+        if check_debt and (balance := get_client_balance(person.client_id)) != person.total_cost:
+            person.outstanding_debts = balance - person.total_cost
+            cost_table += (f'      Also owes an extra £{to_decimal_cost(person.outstanding_debts)} that will need to '
+                           f'be settled\n')
 
     if check_debt and any(map(lambda p: p.outstanding_debts is not None, people)):
-        print(f'Some people also have club debts to settle. (Can be viewed by clicking accounts overview on '
-              f'the invoice screen accessible using the link)\n')
+        to_print += (f'\nSome people also have club debts to settle. (Can be viewed by clicking accounts overview on '
+                     f'the invoice screen accessible using the link)')
 
     print(to_print)
+    print(cost_table)
 
 
 if __name__ == '__main__':
