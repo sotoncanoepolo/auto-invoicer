@@ -5,7 +5,7 @@ from argparse import ArgumentParser
 
 from dotenv import load_dotenv
 
-from lib.quickfile import find_client_id, create_invoice, get_invoice_info, get_client_balance
+from lib.quickfile import find_client_id, create_invoice, get_invoice_info, get_client_balance, get_client_log_in
 from lib.spreadsheet import Sheet
 from lib.utils import ask_question, to_decimal_cost, shorten_link
 
@@ -57,14 +57,16 @@ def main():
         person.direct_url = info.direct_url
         person.invoice_ref = info.invoice_ref
         total_cost = to_decimal_cost(person.total_cost)
-        link = shorten_link(person.direct_url)
-
-        cost_table += f'\n{person.name} - Owes £{total_cost} - Reference to use: {person.invoice_ref} - {link}\n'
 
         if check_debt and (balance := get_client_balance(person.client_id)) != person.total_cost:
             person.outstanding_debts = balance - person.total_cost
+            link = shorten_link(get_client_log_in(person.client_id, None))
+            cost_table += f'\n{person.name} - Owes £{total_cost} - Reference to use: {person.invoice_ref} - {link}\n'
             cost_table += (f'      Also owes an extra £{to_decimal_cost(person.outstanding_debts)} that will need to '
                            f'be settled\n')
+        else:
+            link = shorten_link(person.direct_url)
+            cost_table += f'\n{person.name} - Owes £{total_cost} - Reference to use: {person.invoice_ref} - {link}\n'
 
     if check_debt and any(map(lambda p: p.outstanding_debts is not None, people)):
         to_print += (f'\nSome people also have club debts to settle. (Can be viewed by clicking accounts overview on '

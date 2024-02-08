@@ -1,9 +1,10 @@
-from dataclasses import dataclass
 import os
 import uuid
+from dataclasses import dataclass
 from datetime import datetime
 from hashlib import md5
 from typing import Final, List
+import jwt
 
 import requests
 
@@ -74,14 +75,9 @@ class InvoiceSearchInfo:
 
 
 def get_aged_invoices() -> List[InvoiceSearchInfo]:
-    payload = {"Header": create_header(), "Body": {"SearchParameters": {
-        "ReturnCount": 200,
-        "Offset": 0,
-        "OrderResultsBy": "ClientName",
-        "OrderDirection": "ASC",
-        "InvoiceType": "INVOICE",
-        "Status": "AGED",
-    }}}
+    payload = {"Header": create_header(), "Body": {
+        "SearchParameters": {"ReturnCount": 200, "Offset": 0, "OrderResultsBy": "ClientName", "OrderDirection": "ASC",
+            "InvoiceType": "INVOICE", "Status": "AGED", }}}
     invoices = list()
     while True:
         r = requests.post(base_api + "/Invoice/Search", json={"payload": payload})
@@ -97,15 +93,14 @@ def get_aged_invoices() -> List[InvoiceSearchInfo]:
 
 
 def get_client_log_in(client_id: int, invoice_id: int = None) -> str:
-    page = {}
     if invoice_id is not None:
-        page["InvoiceView"] = {"InvoiceID": str(invoice_id)}
+        payload = {"Header": create_header(),
+                   "Body": {"ClientID": str(client_id), "LandingPage": {"InvoiceView": {"InvoiceID": str(invoice_id)}}}}
+        r = requests.post(base_api + "/Client/LogIn", json={"payload": payload})
+        return r.json()["Client_LogIn"]["Body"]["RedirectUrl"]
     else:
-        page["Dashboard"] = "true"
-
-    payload = {"Header": create_header(), "Body": {"ClientID": str(client_id), "LandingPage": page}}
-    r = requests.post(base_api + "/Client/LogIn", json={"payload": payload})
-    return r.json()["Client_LogIn"]["Body"]["RedirectUrl"]
+        token = jwt.encode({"client_id": str(client_id)}, os.getenv("AUTO_LOGIN_SECRET"))
+        return os.getenv("AUTO_LOGIN_BASE") + token
 
 
 def get_client_balance(client_id: int) -> int:
