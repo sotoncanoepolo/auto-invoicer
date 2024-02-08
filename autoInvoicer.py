@@ -60,7 +60,7 @@ def main():
 
         if check_debt and (balance := get_client_balance(person.client_id)) != person.total_cost:
             person.outstanding_debts = balance - person.total_cost
-            link = shorten_link(get_client_log_in(person.client_id, None))
+            link = shorten_link(get_client_log_in(person.client_id))
             cost_table += f'\n{person.name} - Owes £{total_cost} - Reference to use: {person.invoice_ref} - {link}\n'
             cost_table += (f'      Also owes an extra £{to_decimal_cost(person.outstanding_debts)} that will need to '
                            f'be settled\n')

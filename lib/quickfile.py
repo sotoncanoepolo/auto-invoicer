@@ -44,8 +44,11 @@ def find_client_id(name: str) -> int:
             returned_name = returned_client["CompanyName"]
 
             if record_set_count > 1:
-                ask_question(f'Found {record_set_count} results for the following for client with name: {name}, '
-                             f'should {returned_name} be used instead?')
+                answer = ask_question(f'Found {record_set_count} results for the following for client with name: {name}, '
+                             f'should {returned_name} be used instead?', False)
+                if not answer:
+                    name = input("Name: ")
+                    continue
 
             return returned_client["ClientID"]
 
