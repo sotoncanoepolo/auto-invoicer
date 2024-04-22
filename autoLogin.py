@@ -1,10 +1,9 @@
 from argparse import ArgumentParser
-from typing import Dict, List
 
 from dotenv import load_dotenv
 
-from lib.quickfile import get_aged_invoices, InvoiceSearchInfo, get_client_log_in, find_client_id
-from lib.utils import to_decimal_cost, shorten_link
+from lib.quickfile import get_client_log_in, find_client_id
+from lib.utils import shorten_link
 
 
 def main():
