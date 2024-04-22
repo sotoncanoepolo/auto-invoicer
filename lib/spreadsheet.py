@@ -5,7 +5,7 @@ import openpyxl as xl
 from openpyxl.worksheet.worksheet import Worksheet
 
 from lib.core import Person, InvoiceItem
-from lib.utils import ask_question
+from lib.utils import ask_question, to_decimal_cost
 
 
 @dataclass
@@ -121,7 +121,12 @@ class Sheet:
         person.total_cost = real_total_cost
         if total_cost != real_total_cost:
             diff = real_total_cost - total_cost
+            if abs(diff) >= 0.05:
+                ask_question(f"Total cost for {person.name} does not match the sum of all items "
+                             f"({to_decimal_cost(total_cost)} vs {to_decimal_cost(real_total_cost)}). Continue?")
+
             round_error = InvoiceItem("Rounding Error",
-                                      "The total does not match the total of " + "adding all items without rounding so this " + "is added to fix the rounding error.",
+                                      "The total does not match the total of adding all items without rounding "
+                                      "so this is added to fix the rounding error.",
                                       diff)
             person.costs.append(round_error)
