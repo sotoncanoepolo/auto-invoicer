@@ -94,6 +94,23 @@ def get_aged_invoices() -> List[InvoiceSearchInfo]:
         if len(invoices) >= body["RecordsetCount"]:
             return invoices
 
+def get_unpaid_invoices() -> List[InvoiceSearchInfo]:
+    payload = {"Header": create_header(), "Body": {
+        "SearchParameters": {"ReturnCount": 200, "Offset": 0, "OrderResultsBy": "ClientName", "OrderDirection": "ASC",
+            "InvoiceType": "INVOICE", "Status": "UNPAID", }}}
+    invoices = list()
+    while True:
+        r = requests.post(base_api + "/Invoice/Search", json={"payload": payload})
+        body = r.json()["Invoice_Search"]["Body"]
+
+        for record in body["Record"]:
+            amount = int(round(record["Amount"] * 100))
+            invoices.append(InvoiceSearchInfo(record["InvoiceNumber"], record["InvoiceID"], record["Description"],
+                                              record["ClientID"], amount, record["ClientCompanyName"]))
+
+        if len(invoices) >= body["RecordsetCount"]:
+            return invoices
+
 
 def get_client_log_in(client_id: int, invoice_id: int = None) -> str:
     if invoice_id is not None:

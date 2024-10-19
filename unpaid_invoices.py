@@ -3,7 +3,7 @@ from typing import Dict, List
 
 from dotenv import load_dotenv
 
-from lib.quickfile import get_aged_invoices, InvoiceSearchInfo, get_client_log_in
+from lib.quickfile import get_unpaid_invoices, InvoiceSearchInfo, get_client_log_in
 from lib.utils import to_decimal_cost, shorten_link
 
 
@@ -13,7 +13,7 @@ def main():
     parser = ArgumentParser(prog='Debts', description='Find any people with outstanding debts.')
     parser.parse_args()
 
-    invoices = get_aged_invoices()
+    invoices = get_unpaid_invoices()
     clients: Dict[int, List[InvoiceSearchInfo]] = {}
 
     for invoice in invoices:
@@ -24,7 +24,7 @@ def main():
     if len(clients) == 0:
         return
 
-    to_print = (f'\nClub debts:\nYou can pay directly using the provided links, please make sure to include the invoice'
+    to_print = (f'\nUnpaid Invoices:\nYou can pay directly using the provided links, please make sure to include the invoice'
                 f' reference if you are paying through other means.\nPlease contact me if you have any issues.\n')
 
     for client_id, invoices in clients.items():
@@ -35,11 +35,16 @@ def main():
 
         name = invoices[0].client_name
         url = shorten_link(get_client_log_in(client_id, invoice_id))
-        to_print += f'\n{name} - Owes £{total_debt} - {url}\n'
-
-        for invoice in invoices:
+        if len(invoices) == 1:
+            invoice = invoices[0]
             cost = to_decimal_cost(invoice.amount)
-            to_print += f'      {invoice.description} - £{cost} - Reference to use: {invoice.invoice_ref}\n'
+            to_print += f'\n{name} - {invoice.description} - £{cost} - Reference to use: {invoice.invoice_ref} - {url}\n'
+        else:
+            to_print += f'\n{name} - Owes £{total_debt} - {url}\n'
+
+            for invoice in invoices:
+                cost = to_decimal_cost(invoice.amount)
+                to_print += f'      {invoice.description} - £{cost} - Reference to use: {invoice.invoice_ref}\n'
 
     print(to_print, end='')
 
