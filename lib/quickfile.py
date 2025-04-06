@@ -96,14 +96,18 @@ def get_aged_invoices() -> List[InvoiceSearchInfo]:
 
 
 def get_client_log_in(client_id: int, invoice_id: int = None) -> str:
-    if invoice_id is not None:
-        payload = {"Header": create_header(),
-                   "Body": {"ClientID": str(client_id), "LandingPage": {"InvoiceView": {"InvoiceID": str(invoice_id)}}}}
-        r = requests.post(base_api + "/Client/LogIn", json={"payload": payload})
-        return r.json()["Client_LogIn"]["Body"]["RedirectUrl"]
-    else:
-        token = jwt.encode({"client_id": str(client_id)}, os.getenv("AUTO_LOGIN_SECRET"))
-        return os.getenv("AUTO_LOGIN_BASE") + token
+    #if invoice_id is not None:
+    #    payload = {"Header": create_header(),
+    #               "Body": {"ClientID": str(client_id), "LandingPage": {"InvoiceView": {"InvoiceID": str(invoice_id)}}}}
+    #    r = requests.post(base_api + "/Client/LogIn", json={"payload": payload})
+    #    return r.json()["Client_LogIn"]["Body"]["RedirectUrl"]
+    #else:
+    #    token = jwt.encode({"client_id": str(client_id)}, os.getenv("AUTO_LOGIN_SECRET"))
+    #    return os.getenv("AUTO_LOGIN_BASE") + token
+    # --- ***** ---
+    # --- Always account link not invoice
+    token = jwt.encode({"client_id": str(client_id)}, os.getenv("AUTO_LOGIN_SECRET"))
+    return os.getenv("AUTO_LOGIN_BASE") + token
 
 
 def get_client_balance(client_id: int) -> int:
@@ -130,3 +134,19 @@ def create_invoice(client_id: int, invoice_name: str, items: list[InvoiceItem]) 
     body = r.json()["Invoice_Create"]["Body"]
 
     return body["InvoiceID"]
+def get_sent_invoices() -> List[InvoiceSearchInfo]:
+    payload = {"Header": create_header(), "Body": {
+        "SearchParameters": {"ReturnCount": 200, "Offset": 0, "OrderResultsBy": "ClientName", "OrderDirection": "ASC",
+                             "InvoiceType": "INVOICE", "Status": "SENT", }}}
+    invoices = list()
+    while True:
+        r = requests.post(base_api + "/Invoice/Search", json={"payload": payload})
+        body = r.json()["Invoice_Search"]["Body"]
+
+        for record in body["Record"]:
+            amount = int(round(record["Amount"] * 100))
+            invoices.append(InvoiceSearchInfo(record["InvoiceNumber"], record["InvoiceID"], record["Description"],
+                                              record["ClientID"], amount, record["ClientCompanyName"]))
+
+        if len(invoices) >= body["RecordsetCount"]:
+            return invoices
