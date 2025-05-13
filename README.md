@@ -37,6 +37,15 @@ on [this line](https://github.com/sotoncanoepolo/auto-invoicer/blob/a7c8f1cad3fd
 python autoInvoicer.py [filepath to spreadsheet]
 ```
 
+## automailer
+
+This is very similar to autoInvoicer in how it works.
+The spreadsheet processing works in the same way.
+
+```bash
+python automailer.py [filepath to spreadsheet]
+```
+
 ## Debts
 
 Provides a list of users that have unpaid debts towards the club.
