@@ -1,5 +1,12 @@
 .idea
 .env
+EmailDatabase.csv
+CostDatabase.csv
+SUSU - Member Payments.xlsx
+EmailDatabase - Copy.csv
+
+flaskapp.py
+automailer_flask.py
 
 venv
 *.py[cod]

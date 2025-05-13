@@ -28,3 +28,9 @@ class Person:
     invoice_ref: str | None = None
     total_cost: int | None = None
     outstanding_debts: int | None = None
+    email: str | None = None
+    first_name: str | None = None
+    last_name: str | None = None
+    username: str | None = None
+    paylink: str | None = None
+    payref: str | None = None
