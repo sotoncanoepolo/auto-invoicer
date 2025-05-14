@@ -63,10 +63,9 @@ def search_person(query):
     # return f"The email address for {query} is {email}."
 
 
-# Load the spreadsheet
-df2 = pd.read_excel('SUSU - Member Payments.xlsx', engine='openpyxl')
 
-def search_person_link(first_name, last_name):
+
+def search_person_link(first_name, last_name, df2=df2):
     # Search for the query in the First Name and Last Name columns
     results = df2[(df2['First Name'].str.contains(first_name, case=False, na=False)) &
                  (df2['Last Name'].str.contains(last_name, case=False, na=False))]
@@ -171,11 +170,13 @@ def main():
     print(f'Created CostDatabase.csv for import to MH with costs for {people_count} people.')
     ask_question("Please upload the CSV file to Money Hub, check the costs and create payment requests before "
                  "continuing. Continue?")
+    # Load the spreadsheet
+    df2 = pd.read_excel('SUSU - Member Payments.xlsx', engine='openpyxl')
 
     PaymentDeadline = input("What is the payment deadline? ") # (DD/MM/YYYY) ")
 
     for person in people:
-        person.paylink, person.payref = search_person_link(person.first_name, person.last_name)
+        person.paylink, person.payref = search_person_link(person.first_name, person.last_name, df2)
         if person.paylink and isinstance(person.paylink, str):
             person.paylink = person.paylink.lstrip('\xa0')
 
