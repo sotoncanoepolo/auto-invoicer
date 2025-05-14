@@ -7,6 +7,8 @@ EmailDatabase - Copy.csv
 
 flaskapp.py
 automailer_flask.py
+.run
+.run/automailer.run.xml
 
 venv
 *.py[cod]

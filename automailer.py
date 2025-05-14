@@ -65,7 +65,7 @@ def search_person(query):
 
 
 
-def search_person_link(first_name, last_name, df2=df2):
+def search_person_link(first_name, last_name, df2):
     # Search for the query in the First Name and Last Name columns
     results = df2[(df2['First Name'].str.contains(first_name, case=False, na=False)) &
                  (df2['Last Name'].str.contains(last_name, case=False, na=False))]
