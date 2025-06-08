@@ -1,0 +1,53 @@
+{
+    "type": "object",
+    "properties": {
+        "Name": {
+            "type": "string"
+        },
+        "Preferred Name": {
+            "type": "string"
+        },
+        "Email": {
+            "type": "string"
+        },
+        "Tournament Name": {
+            "type": "string"
+        },
+        "Total Cost": {
+            "type": "string"
+        },
+        "PaymentDeadline": {
+            "type": "string"
+        },
+        "Payment Link": {
+            "type": "string"
+        },
+        "Invoice Lines": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "Item": {
+                        "type": "string"
+                    },
+                    "Cost": {
+                        "type": "number"
+                    }
+                },
+                "required": [
+                    "Item",
+                    "Cost"
+                ]
+            }
+        }
+    },
+    "required": [
+        "Name",
+        "Preferred Name",
+        "Email",
+        "Tournament Name",
+        "Total Cost",
+        "Payment Link",
+        "Invoice Lines"
+    ]
+}
