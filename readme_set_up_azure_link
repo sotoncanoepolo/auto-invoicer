@@ -6,41 +6,43 @@ https://learn.microsoft.com/en-us/azure/healthcare-apis/get-access-token?tabs=az
 Please log in with the tennant you wish to create the app in
 multitennant apps don't work well for certain tennant configs, so for simplicity just create in production tennant.
 
-# If you need to log in:
-az login
-az account show --output table
+# OR Install on your powershell on your computer
+winget install --exact --id Microsoft.AzureCLI
 
+# note right click is copy and paste
+
+#reference url:
+https://learn.microsoft.com/en-us/cli/azure/ad/app?view=azure-cli-latest
+
+## START HERE!!!
+
+# if you need to start the azure cli
+az
+
+# If you need to log in:
+az login 
+
+# then select the correct subcription, if none retry with:
+az login --allow-no-subscriptions
+## 
+
+# for reference only/check who is logged in
+az account show --output table
 
 # To set up the app registration (the app name is visible to end user)
 
 $appName="Your App Name"
-$redirectUri="http://localhost"
+az ad app create --display-name $appName
 
-az ad app create   --display-name $appName   --available-to-other-tenants false   --reply-urls $redirectUri
+# note the app id and parse to powershell
+# replace with your app id
+$appId="Your App Id"
 
-# Alternative creation method: {
-az rest -m post -u https://graph.microsoft.com/v1.0/applications  --headers 'Content-Type=application/json' --body '{"displayName": "xxx"}'       
-# note app id and define as variavel for future use:
-$appId = "{appId}"                 
-az ad app update \
-  --id $appId \
-  --set publicClient.redirectUris='["http://localhost"]'
-# }
+# to check app properites:
+az ad app show --id $appId
 
-# note app id and define as variavel for future use:
-$appId = "{appId}"
+az ad app update --id $appId --public-client-redirect-uris "http://localhost" 
 
 az ad app update --id $appId --set isFallbackPublicClient=true
-# Add delegated Microsoft Graph permissions using GUIDs
-az ad app permission add `
-  --id $appId `
-  --api 00000003-0000-0000-c000-000000000000 `
-  --api-permissions `
-    e383f46e-2787-4529-855e-0e479a3ffac0=Scope `
-    a9a21029-fb8e-4d4a-a3f1-ecb8a9b66c2d=Scope `
-    b340eb25-3456-403f-be2f-af7a0d370277=Scope
 
-az ad app permission grant `
-  --id d44ca882-8046-4e79-bf6c-17e2f17bf1ce `
-  --api 00000003-0000-0000-c000-000000000000
-
+----
