@@ -9,6 +9,7 @@ flaskapp.py
 automailer_flask.py
 .run
 .run/automailer.run.xml
+sandbox.py
 
 venv
 *.py[cod]

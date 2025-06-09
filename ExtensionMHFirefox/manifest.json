@@ -1,0 +1,30 @@
+{
+  "name": "MoneyHub Autofill Payment Requests",
+  "version": "1.0",
+  "manifest_version": 3,
+  "description": "Auto-fill the SUSU Create Member Payments form from a CSV file. Open with Ctrl+Shift+Y",
+  "permissions": [ "scripting", "activeTab" ],
+  "sidebar_action": {
+    "default_title": "MoneyHub Autofill Payment Requests",
+    "default_icon": "icon.png",
+    "default_panel": "popup.html"
+  },
+  "commands": {
+    "_execute_sidebar_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Y"
+      }
+    }
+  },
+  //"action": {
+  //  "default_popup": "popup.html",
+  //  "default_icon": "icon.png"
+  //},
+  "content_scripts": [
+    {
+      "matches": [ "<all_urls>" ],
+      "js": [ "content.js" ]
+    }
+  ],
+  "host_permissions": [ "<all_urls>" ]
+}
