@@ -5,6 +5,9 @@ CostDatabase.csv
 SUSU - Member Payments.xlsx
 EmailDatabase - Copy.csv
 
+.DS_Store
+.Rhistory
+
 flaskapp.py
 automailer_flask.py
 .run
