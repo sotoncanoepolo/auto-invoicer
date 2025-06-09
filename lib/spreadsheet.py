@@ -29,6 +29,8 @@ class Sheet:
         self.total_cost_header = self.expect_header("Total Cost")
         self.paid_header = self.expect_header("Paid?")
         self.notes_header = self.expect_header("Notes")
+        # normal_headers = ["Deposits", "Entry", "Camping", "Food", "Parking", "Driver Debt", "Cost towards travel",
+        #                   "Travel Costs", "Ferry Costs", "SUSU Entry Sub","SUSU Other Sub"]
         normal_headers = ["Deposits", "Entry", "Camping", "Food", "Parking", "Driver Debt", "Cost towards travel",
                           "Travel Costs", "Ferry Costs"]
         self.normal_headers: list[Header] = list(
