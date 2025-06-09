@@ -8,80 +8,11 @@ from dotenv import load_dotenv
 
 # from lib.quickfile import find_client_id, create_invoice, get_invoice_info, get_client_balance, get_client_log_in
 from lib.spreadsheet import Sheet
-from lib.utils import ask_question, to_decimal_cost, shorten_link
+from lib.utils import ask_question, to_decimal_cost, shorten_link, get_access_token, send_email, create_email_body, search_person, search_person_link
 
 import pandas as pd
 
-# Load the CSV file
-df1 = pd.read_csv('EmailDatabase.csv')
-
-def search_person(query):
-    # # Search for the query in the First Name, Last Name, and Username columns
-    # results = df1[(df1['First Name'].str.contains(query, case=False, na=False)) |
-    #              (df1['Last Name'].str.contains(query, case=False, na=False)) |
-    #              (df1['Username'].str.contains(query, case=False, na=False))]
-
-    # Split the query by spaces
-    query_parts = query.split()
-    if len(query_parts) == 1:
-        # Search for the query in the First Name, Last Name, and Username columns
-        results = df1[(df1['First Name'].str.contains(query_parts[0], case=False, na=False)) |
-                     (df1['Last Name'].str.contains(query_parts[0], case=False, na=False)) |
-                     (df1['Username'].str.contains(query_parts[0], case=False, na=False))]
-    elif len(query_parts) == 2:
-        # Search for the query parts in the First Name and Last Name columns
-        results = df1[(df1['First Name'].str.contains(query_parts[0], case=False, na=False)) &
-                     (df1['Last Name'].str.contains(query_parts[1], case=False, na=False))]
-    elif len(query_parts) == 3:
-        # Search for the query parts in the First Name, Middle Name, and Last Name columns
-        results = df1[(df1['First Name'].str.contains(query_parts[0], case=False, na=False)) &
-                     (df1['Last Name'].str.contains(query_parts[2], case=False, na=False))]
-    else:
-       results = df1[(df1['First Name'].str.contains(query_parts[0], case=False, na=False)) &
-                    (df1['Last Name'].str.contains(query_parts[2], case=False, na=False))]
-
-
-    if results.empty:
-        return None
-    
-    if len(results) > 1:
-        exact_match = results[results['Last Name'].str.lower() == query_parts[-1].lower()]
-        if not exact_match.empty:
-            email = exact_match.iloc[0]['Email']
-            first_name = exact_match.iloc[0]['First Name']
-            last_name = exact_match.iloc[0]['Last Name']
-            username = exact_match.iloc[0]['Username']
-            return (1,email, first_name, last_name, username)
-        else:
-            return (0, results[['First Name', 'Last Name', 'Username', 'Email']])
-
-    email = results.iloc[0]['Email']
-    first_name = results.iloc[0]['First Name']
-    last_name = results.iloc[0]['Last Name']
-    username = results.iloc[0]['Username']
-    return (1,email, first_name, last_name, username)
-    # return f"The email address for {query} is {email}."
-
-
-
-
-def search_person_link(first_name, last_name, df2):
-    # Search for the query in the First Name and Last Name columns
-    results = df2[(df2['First Name'].str.contains(first_name, case=False, na=False)) &
-                 (df2['Last Name'].str.contains(last_name, case=False, na=False))]
-
-    if results.empty:
-        return None
-    
-    if len(results) > 1:
-        exact_match = results[results['Last Name'].str.lower() == last_name.lower()]
-        if not exact_match.empty:
-            return (exact_match.iloc[0]['Link'], exact_match.iloc[0]['Reference'])
-        else:
-            return None
-    
-
-    return (results.iloc[0]['Link'], results.iloc[0]['Reference'])
+import requests
 
 def main():
     load_dotenv()
@@ -180,10 +111,16 @@ def main():
         if person.paylink and isinstance(person.paylink, str):
             person.paylink = person.paylink.lstrip('\xa0')
 
-    import requests
 
     # Power Automate webhook URL
     url = os.getenv("AUTOMAILER_API")
+
+    access_token = get_access_token()
+    if not access_token:
+        print("Failed to get access token. Exiting.")
+        sys.exit(1)
+
+    sender = os.getenv("SENDER_EMAIL_ADDRESS") # format: 'users/<email_address>' for shared mailboxes, or 'me' for personal mailbox
 
     # Create the payload
     for person in people:
@@ -205,10 +142,22 @@ def main():
             ]
         }
         print(payload)
-        response = requests.post(url, json=payload)
-        # Print the response
-        print("Status Code:", response.status_code)
-        print("Response:", response.text)
+        # response = requests.post(url, json=payload)
+        # print("Status Code:", response.status_code)
+        # print("Response:", response.text)
+        recipient = person.email
+        subject = f'{tournament_name} - Payment Request | SUCP'
+        body = create_email_body(
+            payload["Name"],
+            payload["Preferred Name"],
+            payload["Email"],
+            payload["Tournament Name"],
+            payload["Total Cost"],
+            payload["Payment Link"],
+            payload["Invoice Lines"],
+            payload["PaymentDeadline"]
+        )
+        send_email(access_token, sender, recipient, subject, body)
 
     
     
