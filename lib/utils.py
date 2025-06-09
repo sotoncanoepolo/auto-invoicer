@@ -154,7 +154,7 @@ def send_email(access_token, sender, recipient, subject, body):
                 }
             ]
         },
-        "saveToSentItems": "false"  # Set to "true" if you want to save the sent email in the Sent Items folder
+        "saveToSentItems": "true"  # Set to "true" if you want to save the sent email in the Sent Items folder
     }
 
     response = requests.post(url, headers=headers, json=email_msg)

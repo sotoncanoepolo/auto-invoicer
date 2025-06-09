@@ -3,16 +3,12 @@
 import sys
 import os
 from argparse import ArgumentParser
-
 from dotenv import load_dotenv
-
-# from lib.quickfile import find_client_id, create_invoice, get_invoice_info, get_client_balance, get_client_log_in
 from lib.spreadsheet import Sheet
 from lib.utils import ask_question, to_decimal_cost, shorten_link, get_access_token, send_email, create_email_body, search_person, search_person_link
-
 import pandas as pd
 
-import requests
+# import requests # from old PowerAutomate based code
 
 def main():
     load_dotenv()
@@ -122,6 +118,7 @@ def main():
 
     sender = os.getenv("SENDER_EMAIL_ADDRESS") # format: 'users/<email_address>' for shared mailboxes, or 'me' for personal mailbox
 
+
     # Create the payload
     for person in people:
         
@@ -141,10 +138,13 @@ def main():
                 for item_dict in (invoice_item.to_invoice() for invoice_item in person.costs)
             ]
         }
-        print(payload)
+        # print(payload)
+
+        # # from old PowerAutomate based code:
         # response = requests.post(url, json=payload)
         # print("Status Code:", response.status_code)
         # print("Response:", response.text)
+
         recipient = person.email
         subject = f'{tournament_name} - Payment Request | SUCP'
         body = create_email_body(
@@ -159,8 +159,6 @@ def main():
         )
         send_email(access_token, sender, recipient, subject, body)
 
-    
-    
 
     print(f'Created invoices for all {people_count} people.')
     ask_question("Please go to the club email account, and check all the emails have been sent correctly before "
